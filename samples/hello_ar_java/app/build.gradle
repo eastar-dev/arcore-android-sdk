@@ -2,27 +2,12 @@ apply plugin: 'com.android.application'
 apply from: '../base.gradle'
 
 android {
-//    compileSdkVersion 29
     defaultConfig {
         applicationId "com.google.ar.core.examples.java.helloar"
 
-        // AR Optional apps must declare minSdkVersion >= 14.
-        // AR Required apps must declare minSdkVersion >= 24.
-//        minSdkVersion 24
-//        targetSdkVersion 29
         versionCode 1
         versionName '1.0'
     }
-//    compileOptions {
-//        sourceCompatibility JavaVersion.VERSION_1_8
-//        targetCompatibility JavaVersion.VERSION_1_8
-//    }
-//    buildTypes {
-//        release {
-//            minifyEnabled false
-//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-//        }
-//    }
 }
 
 dependencies {
@@ -33,10 +18,4 @@ dependencies {
     // https://github.com/javagl/Obj
     implementation 'de.javagl:obj:0.3.0'
     implementation project(':base')
-//    implementation 'androidx.appcompat:appcompat:1.2.0'
-//    implementation 'com.google.android.material:material:1.2.1'
-//
-//    debugApi 'com.github.eastar-dev.EastarLog2:log:2.0.5'
-//    releaseApi 'com.github.eastar-dev.EastarLog2:logNoOp:2.0.5'
-
 }
