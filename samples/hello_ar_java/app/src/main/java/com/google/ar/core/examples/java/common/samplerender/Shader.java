@@ -20,7 +20,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import android.content.res.AssetManager;
 import android.opengl.GLES30;
 import android.opengl.GLException;
-import android.util.Log;
+import android.log.Log;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;

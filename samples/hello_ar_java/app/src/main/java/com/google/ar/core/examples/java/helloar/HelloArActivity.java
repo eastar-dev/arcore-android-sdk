@@ -23,7 +23,7 @@ import android.opengl.GLES30;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Bundle;
-import android.util.Log;
+import android.log.Log;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;

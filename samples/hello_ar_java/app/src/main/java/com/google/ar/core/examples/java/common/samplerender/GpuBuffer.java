@@ -16,7 +16,7 @@
 package com.google.ar.core.examples.java.common.samplerender;
 
 import android.opengl.GLES30;
-import android.util.Log;
+import android.log.Log;
 import java.nio.Buffer;
 
 /* package-private */

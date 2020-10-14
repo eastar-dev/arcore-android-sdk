@@ -20,7 +20,7 @@ import android.graphics.BitmapFactory;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES30;
 import android.opengl.GLUtils;
-import android.util.Log;
+import android.log.Log;
 import java.io.Closeable;
 import java.io.IOException;
 

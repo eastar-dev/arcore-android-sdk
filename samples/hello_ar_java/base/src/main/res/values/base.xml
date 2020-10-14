@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="title">60dp</dimen>
+    <dimen name="margin">16dp</dimen>
+    <dimen name="space">8dp</dimen>
+    <dimen name="margin_activity">24dp</dimen>
+
+    <!--    <dimen name="m1">32dp</dimen>-->
+    <dimen name="m2">32dp</dimen>
+    <!--    <dimen name="m3">24dp</dimen>-->
+    <dimen name="m4">16dp</dimen>
+    <dimen name="m5">8dp</dimen>
+    <dimen name="m6">4dp</dimen>
+
+    <dimen name="h1">22sp</dimen>
+    <dimen name="h2">19sp</dimen>
+    <dimen name="h3">17sp</dimen>
+    <dimen name="h4">15sp</dimen>
+
+    <dimen name="hh1">30dp</dimen>
+    <dimen name="hh2">18dp</dimen>
+    <dimen name="hh3">16dp</dimen>
+    <dimen name="hh4">14dp</dimen>
+    <dimen name="hh5">12dp</dimen>
+    <dimen name="hh6">10dp</dimen>
+
+    <drawable name="windows_white">#fff</drawable>
+    <!--스플레쉬 배경-->
+    <color name="c_hana_bg">#00d89c</color>
+    <drawable name="c_hana_bg">#00d89c</drawable>
+    <color name="c_hana">#009688</color>
+    <color name="c_hana_dark">#00796b</color>
+
+    <color name="c_hana_accent">#00d89c</color>
+    <color name="text_hana_white">#fff</color>
+    <color name="text_hana_black">#333</color>
+    <!--title-->
+    <color name="title_text_drak">#021715</color>
+
+    <style name="BTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/c_hana</item>
+        <item name="colorPrimaryDark">@color/c_hana_dark</item>
+        <item name="colorAccent">@color/c_hana_accent</item>
+        <item name="android:windowBackground">@drawable/windows_white</item>
+    </style>
+
+    <style name="BTheme.Transparent">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+    </style>
+
+    <style name="BTheme.Transparent.Dialog">
+        <item name="android:windowIsFloating">true</item>
+    </style>
+
+</resources>
+
+

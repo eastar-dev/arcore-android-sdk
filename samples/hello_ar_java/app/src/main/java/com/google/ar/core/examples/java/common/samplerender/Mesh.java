@@ -16,7 +16,7 @@
 package com.google.ar.core.examples.java.common.samplerender;
 
 import android.opengl.GLES30;
-import android.util.Log;
+import android.log.Log;
 import de.javagl.obj.Obj;
 import de.javagl.obj.ObjData;
 import de.javagl.obj.ObjReader;
