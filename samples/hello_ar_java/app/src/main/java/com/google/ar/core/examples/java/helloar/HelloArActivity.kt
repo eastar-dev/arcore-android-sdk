@@ -21,8 +21,8 @@ import android.opengl.GLES30
 import android.opengl.Matrix
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
 import android.widget.PopupMenu
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.google.ar.core.*
 import com.google.ar.core.ArCoreApk.InstallStatus
@@ -42,13 +42,13 @@ import java.util.*
  * ARCore API. The application will display any detected planes and will allow the user to tap on a
  * plane to place a 3d model of the Android robot.
  */
-class HelloArActivity : BActivity(), SampleRender.Renderer {
+open class HelloArActivity : BActivity(), SampleRender.Renderer {
     private lateinit var bb: ActivityMainBinding
 
     private var installRequested = false
     private var session: Session? = null
     private val messageSnackbarHelper = SnackbarHelper()
-    private var displayRotationHelper: DisplayRotationHelper? = null
+    private lateinit var displayRotationHelper: DisplayRotationHelper
     private val trackingStateHelper = TrackingStateHelper(this)
     private var tapHelper: TapHelper? = null
     private var render: SampleRender? = null
@@ -109,19 +109,6 @@ class HelloArActivity : BActivity(), SampleRender.Renderer {
         }
     }
 
-    /**
-     * Menu button to launch feature specific settings.
-     */
-    protected fun settingsMenuClick(item: MenuItem): Boolean {
-        if (item.itemId == R.id.depth_settings) {
-            launchDepthSettingsMenuDialog()
-            return true
-        } else if (item.itemId == R.id.instant_placement_settings) {
-            launchInstantPlacementSettingsMenuDialog()
-            return true
-        }
-        return false
-    }
 
     override fun onDestroy() {
         if (session != null) {
@@ -137,65 +124,72 @@ class HelloArActivity : BActivity(), SampleRender.Renderer {
 
     override fun onResume() {
         super.onResume()
-        if (session == null) {
-            var exception: Exception? = null
-            var message: String? = null
-            try {
-                when (ArCoreApk.getInstance().requestInstall(this, !installRequested)) {
-                    InstallStatus.INSTALL_REQUESTED -> {
-                        installRequested = true
-                        return
-                    }
-                    InstallStatus.INSTALLED -> {
-                    }
-                }
 
-                // ARCore requires camera permissions to operate. If we did not yet obtain runtime
-                // permission on Android M and above, now is a good time to ask the user for it.
-                if (!CameraPermissionHelper.hasCameraPermission(this)) {
-                    CameraPermissionHelper.requestCameraPermission(this)
-                    return
-                }
+        //01
+        createSession()
+        val session = session ?: return
 
-                // Create the session.
-                session = Session( /* context= */this)
-            } catch (e: UnavailableArcoreNotInstalledException) {
-                message = "Please install ARCore"
-                exception = e
-            } catch (e: UnavailableUserDeclinedInstallationException) {
-                message = "Please install ARCore"
-                exception = e
-            } catch (e: UnavailableApkTooOldException) {
-                message = "Please update ARCore"
-                exception = e
-            } catch (e: UnavailableSdkTooOldException) {
-                message = "Please update this app"
-                exception = e
-            } catch (e: UnavailableDeviceNotCompatibleException) {
-                message = "This device does not support AR"
-                exception = e
-            } catch (e: Exception) {
-                message = "Failed to create AR session"
-                exception = e
-            }
-            if (message != null) {
-                messageSnackbarHelper.showError(this, message)
-                Log.e(TAG, "Exception creating session", exception)
-                return
-            }
-        }
-
-        // Note that order matters - see the note in onPause(), the reverse applies here.
+        //02
         try {
             configureSession()
-            session!!.resume()
+            session.resume()
         } catch (e: CameraNotAvailableException) {
             messageSnackbarHelper.showError(this, "Camera not available. Try restarting the app.")
-            session = null
+            this.session = null
             return
         }
-        bb.surfaceview!!.onResume()
-        displayRotationHelper!!.onResume()
+        bb.surfaceview.onResume()
+        displayRotationHelper.onResume()
+    }
+
+    private fun createSession() {
+        if (session != null)
+            return
+        var exception: Exception? = null
+        var message: String? = null
+        try {
+            //필요한 경우 arcore를 설치
+            val installStatus = ArCoreApk.getInstance().requestInstall(this, !installRequested)!!
+
+            when (installStatus) {
+                InstallStatus.INSTALL_REQUESTED -> {
+                    installRequested = true
+                    return
+                }
+                InstallStatus.INSTALLED -> Unit
+            }
+
+            // ARCore가 작동하려면 카메라 권한이 필요합니다. 아직 런타임을 얻지 못했다면
+            if (!CameraPermissionHelper.hasCameraPermission(this)) {
+                CameraPermissionHelper.requestCameraPermission(this)
+                return
+            }
+
+            // Create the session.
+            session = Session( /* context= */this)
+        } catch (e: UnavailableArcoreNotInstalledException) {
+            message = "Please install ARCore"
+            exception = e
+        } catch (e: UnavailableUserDeclinedInstallationException) {
+            message = "Please install ARCore"
+            exception = e
+        } catch (e: UnavailableApkTooOldException) {
+            message = "Please update ARCore"
+            exception = e
+        } catch (e: UnavailableSdkTooOldException) {
+            message = "Please update this app"
+            exception = e
+        } catch (e: UnavailableDeviceNotCompatibleException) {
+            message = "This device does not support AR"
+            exception = e
+        } catch (e: Exception) {
+            message = "Failed to create AR session"
+            exception = e
+        }
+        if (message != null) {
+            messageSnackbarHelper.showError(this, message)
+            Log.e(TAG, "Exception creating session", exception)
+        }
     }
 
     public override fun onPause() {
@@ -204,44 +198,17 @@ class HelloArActivity : BActivity(), SampleRender.Renderer {
             // Note that the order matters - GLSurfaceView is paused first so that it does not try
             // to query the session. If Session is paused before GLSurfaceView, GLSurfaceView may
             // still call session.update() and get a SessionPausedException.
-            displayRotationHelper!!.onPause()
-            bb.surfaceview!!.onPause()
+            displayRotationHelper.onPause()
+            bb.surfaceview.onPause()
             session!!.pause()
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        results: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, results)
-        if (!CameraPermissionHelper.hasCameraPermission(this)) {
-            Toast.makeText(
-                this,
-                "Camera permission is needed to run this application",
-                Toast.LENGTH_LONG
-            )
-                .show()
-            if (!CameraPermissionHelper.shouldShowRequestPermissionRationale(this)) {
-                // Permission denied with checking "Do not ask again".
-                CameraPermissionHelper.launchPermissionSettings(this)
-            }
-            finish()
-        }
-    }
-
-    override fun onWindowFocusChanged(hasFocus: Boolean) {
-        super.onWindowFocusChanged(hasFocus)
-        FullScreenHelper.setFullScreenOnWindowFocusChanged(this, hasFocus)
-    }
 
     override fun onSurfaceCreated(render: SampleRender) {
-        // Prepare the rendering objects. This involves reading shaders and 3D model files, so may throw
-        // an IOException.
+        // 렌더링 개체를 준비합니다. 여기에는 셰이더 및 3D 모델 파일 읽기가 포함되므로 IOException이 발생할 수 있습니다.
         try {
-            depthTexture =
-                Texture(render, Texture.Target.TEXTURE_2D, Texture.WrapMode.CLAMP_TO_EDGE)
+            depthTexture = Texture(render, Texture.Target.TEXTURE_2D, Texture.WrapMode.CLAMP_TO_EDGE)
             planeRenderer = PlaneRenderer(render)
             backgroundRenderer = BackgroundRenderer(render, depthTexture)
 
@@ -251,42 +218,27 @@ class HelloArActivity : BActivity(), SampleRender.Renderer {
                 POINT_CLOUD_VERTEX_SHADER_NAME,
                 POINT_CLOUD_FRAGMENT_SHADER_NAME,  /*defines=*/
                 null
-            )
-                .set4(
-                    "u_Color",
-                    floatArrayOf(31.0f / 255.0f, 188.0f / 255.0f, 210.0f / 255.0f, 1.0f)
-                )
+            ).set4("u_Color", floatArrayOf(31.0f / 255.0f, 188.0f / 255.0f, 210.0f / 255.0f, 1.0f))
                 .set1("u_PointSize", 5.0f)
             // four entries per vertex: X, Y, Z, confidence
-            pointCloudVertexBuffer =
-                VertexBuffer(render,  /*numberOfEntriesPerVertex=*/4,  /*entries=*/null)
+            pointCloudVertexBuffer = VertexBuffer(render,  /*numberOfEntriesPerVertex=*/4,  /*entries=*/null)
             val pointCloudVertexBuffers = arrayOf(
                 pointCloudVertexBuffer!!
             )
-            pointCloudMesh = Mesh(
-                render, Mesh.PrimitiveMode.POINTS,  /*indexBuffer=*/null, pointCloudVertexBuffers
-            )
+            pointCloudMesh = Mesh(render, Mesh.PrimitiveMode.POINTS,  /*indexBuffer=*/null, pointCloudVertexBuffers)
 
             // Virtual object to render (Andy the android)
-            val virtualObjectTexture =
-                Texture.createFromAsset(render, "models/andy.png", Texture.WrapMode.CLAMP_TO_EDGE)
+            val virtualObjectTexture = Texture.createFromAsset(render, "models/andy.png", Texture.WrapMode.CLAMP_TO_EDGE)
             virtualObjectMesh = Mesh.createFromAsset(render, "models/andy.obj")
-            virtualObjectShader = createVirtualObjectShader(
-                render, virtualObjectTexture,  /*use_depth_for_occlusion=*/false
-            )
-            virtualObjectDepthShader = createVirtualObjectShader(
-                render,
-                virtualObjectTexture,  /*use_depth_for_occlusion=*/
-                true
-            )
-                .setTexture("u_DepthTexture", depthTexture)
+            virtualObjectShader = createVirtualObjectShader(render, virtualObjectTexture,  /*use_depth_for_occlusion=*/false)
+            virtualObjectDepthShader = createVirtualObjectShader(render, virtualObjectTexture,  /*use_depth_for_occlusion=*/                true).setTexture("u_DepthTexture", depthTexture)
         } catch (e: IOException) {
             Log.e(TAG, "Failed to read an asset file", e)
         }
     }
 
     override fun onSurfaceChanged(render: SampleRender, width: Int, height: Int) {
-        displayRotationHelper!!.onSurfaceChanged(width, height)
+        displayRotationHelper.onSurfaceChanged(width, height)
     }
 
     override fun onDrawFrame(render: SampleRender) {
@@ -300,7 +252,7 @@ class HelloArActivity : BActivity(), SampleRender.Renderer {
 
         // Notify ARCore session that the view size changed so that the perspective matrix and
         // the video background can be properly adjusted.
-        displayRotationHelper!!.updateSessionIfNeeded(session)
+        displayRotationHelper.updateSessionIfNeeded(session)
         try {
             // Obtain the current frame from ARSession. When the configuration is set to
             // UpdateMode.BLOCKING (it is by default), this will throttle the rendering to the
@@ -511,62 +463,6 @@ class HelloArActivity : BActivity(), SampleRender.Renderer {
             .show()
     }
 
-    private fun launchInstantPlacementSettingsMenuDialog() {
-        resetSettingsMenuDialogCheckboxes()
-        val resources = resources
-        AlertDialog.Builder(this)
-            .setTitle(R.string.options_title_instant_placement)
-            .setMultiChoiceItems(
-                resources.getStringArray(R.array.instant_placement_options_array),
-                instantPlacementSettingsMenuDialogCheckboxes
-            ) { dialog: DialogInterface?, which: Int, isChecked: Boolean ->
-                instantPlacementSettingsMenuDialogCheckboxes[which] = isChecked
-            }
-            .setPositiveButton(
-                R.string.done
-            ) { dialogInterface: DialogInterface?, which: Int -> applySettingsMenuDialogCheckboxes() }
-            .setNegativeButton(
-                android.R.string.cancel
-            ) { dialog: DialogInterface?, which: Int -> resetSettingsMenuDialogCheckboxes() }
-            .show()
-    }
-
-    /**
-     * Shows checkboxes to the user to facilitate toggling of depth-based effects.
-     */
-    private fun launchDepthSettingsMenuDialog() {
-        // Retrieves the current settings to show in the checkboxes.
-        resetSettingsMenuDialogCheckboxes()
-
-        // Shows the dialog to the user.
-        val resources = resources
-        if (session!!.isDepthModeSupported(Config.DepthMode.AUTOMATIC)) {
-            // With depth support, the user can select visualization options.
-            AlertDialog.Builder(this)
-                .setTitle(R.string.options_title_with_depth)
-                .setMultiChoiceItems(
-                    resources.getStringArray(R.array.depth_options_array),
-                    depthSettingsMenuDialogCheckboxes
-                ) { dialog: DialogInterface?, which: Int, isChecked: Boolean ->
-                    depthSettingsMenuDialogCheckboxes[which] = isChecked
-                }
-                .setPositiveButton(
-                    R.string.done
-                ) { dialogInterface: DialogInterface?, which: Int -> applySettingsMenuDialogCheckboxes() }
-                .setNegativeButton(
-                    android.R.string.cancel
-                ) { dialog: DialogInterface?, which: Int -> resetSettingsMenuDialogCheckboxes() }
-                .show()
-        } else {
-            // Without depth support, no settings are available.
-            AlertDialog.Builder(this)
-                .setTitle(R.string.options_title_without_depth)
-                .setPositiveButton(
-                    R.string.done
-                ) { dialogInterface: DialogInterface?, which: Int -> applySettingsMenuDialogCheckboxes() }
-                .show()
-        }
-    }
 
     private fun applySettingsMenuDialogCheckboxes() {
         depthSettings.setUseDepthForOcclusion(depthSettingsMenuDialogCheckboxes[0])
@@ -597,12 +493,12 @@ class HelloArActivity : BActivity(), SampleRender.Renderer {
         return false
     }
 
-    /**
-     * Configures the session with feature settings.
-     */
+    /** 세션 설정 */
     private fun configureSession() {
-        val config = session!!.config
-        if (session!!.isDepthModeSupported(Config.DepthMode.AUTOMATIC)) {
+        val session = session ?: return
+        val config = session.config
+
+        if (session.isDepthModeSupported(Config.DepthMode.AUTOMATIC)) {
             config.depthMode = Config.DepthMode.AUTOMATIC
         } else {
             config.depthMode = Config.DepthMode.DISABLED
@@ -612,7 +508,7 @@ class HelloArActivity : BActivity(), SampleRender.Renderer {
         } else {
             config.instantPlacementMode = InstantPlacementMode.DISABLED
         }
-        session!!.configure(config)
+        session.configure(config)
     }
 
     /**
@@ -727,4 +623,80 @@ class HelloArActivity : BActivity(), SampleRender.Renderer {
                 .set1("u_SpecularPower", 8.0f)
         }
     }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
+    /** 기능별 설정을 시작하는 메뉴 버튼. */
+    private fun settingsMenuClick(item: MenuItem): Boolean {
+        if (item.itemId == R.id.depth_settings) {
+            launchDepthSettingsMenuDialog()
+            return true
+        } else if (item.itemId == R.id.instant_placement_settings) {
+            launchInstantPlacementSettingsMenuDialog()
+            return true
+        }
+        return false
+    }
+
+    /** 깊이 기반 효과를 쉽게 전환 할 수 있도록 사용자에게 확인란을 표시합니다. */
+    private fun launchDepthSettingsMenuDialog() {
+        // Retrieves the current settings to show in the checkboxes.
+        resetSettingsMenuDialogCheckboxes()
+
+        // Shows the dialog to the user.
+        if (session!!.isDepthModeSupported(Config.DepthMode.AUTOMATIC)) {
+            // With depth support, the user can select visualization options.
+            AlertDialog.Builder(this)
+                .setTitle(R.string.options_title_with_depth)
+                .setMultiChoiceItems(R.array.depth_options_array, depthSettingsMenuDialogCheckboxes) { _, which, isChecked ->
+                    depthSettingsMenuDialogCheckboxes[which] = isChecked
+                }
+                .setPositiveButton(R.string.done) { _, _ -> applySettingsMenuDialogCheckboxes() }
+                .setNegativeButton(android.R.string.cancel) { _, _ -> resetSettingsMenuDialogCheckboxes() }
+                .show()
+        } else {
+            // Without depth support, no settings are available.
+            AlertDialog.Builder(this)
+                .setTitle(R.string.options_title_without_depth)
+                .setPositiveButton(
+                    R.string.done
+                ) { _, _ -> applySettingsMenuDialogCheckboxes() }
+                .show()
+        }
+    }
+
+    private fun launchInstantPlacementSettingsMenuDialog() {
+        resetSettingsMenuDialogCheckboxes()
+        val resources = resources
+        AlertDialog.Builder(this)
+            .setTitle(R.string.options_title_instant_placement)
+            .setMultiChoiceItems(R.array.instant_placement_options_array, instantPlacementSettingsMenuDialogCheckboxes) { _, which, isChecked ->
+                instantPlacementSettingsMenuDialogCheckboxes[which] = isChecked
+            }
+            .setPositiveButton(R.string.done) { _, _ -> applySettingsMenuDialogCheckboxes() }
+            .setNegativeButton(android.R.string.cancel) { _, _ -> resetSettingsMenuDialogCheckboxes() }
+            .show()
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, results: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, results)
+        if (!CameraPermissionHelper.hasCameraPermission(this)) {
+            toast("Camera permission is needed to run this application")
+            if (!CameraPermissionHelper.shouldShowRequestPermissionRationale(this)) {
+                // Permission denied with checking "Do not ask again".
+                CameraPermissionHelper.launchPermissionSettings(this)
+            }
+            finish()
+        }
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+    }
+
 }
