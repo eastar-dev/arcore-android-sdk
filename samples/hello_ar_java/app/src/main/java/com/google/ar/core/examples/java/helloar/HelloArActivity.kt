@@ -467,25 +467,21 @@ open class HelloArActivity : BActivity(), SampleRender.Renderer {
     private fun applySettingsMenuDialogCheckboxes() {
         depthSettings.setUseDepthForOcclusion(depthSettingsMenuDialogCheckboxes[0])
         depthSettings.setDepthColorVisualizationEnabled(depthSettingsMenuDialogCheckboxes[1])
-        instantPlacementSettings.isInstantPlacementEnabled =
-            instantPlacementSettingsMenuDialogCheckboxes[0]
+        instantPlacementSettings.isInstantPlacementEnabled = instantPlacementSettingsMenuDialogCheckboxes[0]
         configureSession()
     }
 
     private fun resetSettingsMenuDialogCheckboxes() {
         depthSettingsMenuDialogCheckboxes[0] = depthSettings.useDepthForOcclusion()
         depthSettingsMenuDialogCheckboxes[1] = depthSettings.depthColorVisualizationEnabled()
-        instantPlacementSettingsMenuDialogCheckboxes[0] =
-            instantPlacementSettings.isInstantPlacementEnabled
+        instantPlacementSettingsMenuDialogCheckboxes[0] = instantPlacementSettings.isInstantPlacementEnabled
     }
 
     /**
      * Checks if we detected at least one plane.
      */
     private fun hasTrackingPlane(): Boolean {
-        for (plane in session!!.getAllTrackables(
-            Plane::class.java
-        )) {
+        for (plane in session!!.getAllTrackables(Plane::class.java)) {
             if (plane.trackingState == TrackingState.TRACKING) {
                 return true
             }
