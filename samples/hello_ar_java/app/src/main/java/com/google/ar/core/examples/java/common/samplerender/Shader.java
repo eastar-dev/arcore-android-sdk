@@ -82,6 +82,10 @@ public class Shader implements Closeable {
     /**
      * Construct a {@link Shader} given the shader code.
      *
+     * OpenGL ES 프로그램 생성 및 설정
+     * 쉐이더 작성과 이를 사용할 프로그램에 대한 모든 준비가 끝나게 되는 것입니다.
+     * 쉐이더를 담을 일종의 그릇인 프로그램 객체를 생성하고 이 객체에 쉐이더를 붙인 다음 링크를 하면 프로그램을 사용할 준비가 모두 끝나게 됩니다.
+     *
      * @param defines 주어진 이름과 값으로 정의 할 셰이더 프리 컴파일러 심볼의 맵
      */
     public Shader(
