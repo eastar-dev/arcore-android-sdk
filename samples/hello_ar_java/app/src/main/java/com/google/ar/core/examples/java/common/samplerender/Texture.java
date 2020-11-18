@@ -26,7 +26,7 @@ import java.io.Closeable;
 import java.io.IOException;
 
 /**
- * A GPU-side texture.
+ * GPU 측 텍스처.
  */
 public class Texture implements Closeable {
     private static final String TAG = Texture.class.getSimpleName();
@@ -35,7 +35,7 @@ public class Texture implements Closeable {
     private final Target target;
 
     /**
-     * Describes the way the texture's edges are rendered.
+     * 텍스처의 가장자리가 렌더링되는 방식을 설명합니다.
      *
      * @see <a href="https://www.khronos.org/registry/OpenGL-Refpages/es3.0/html/glTexParameter.xhtml">GL_TEXTURE_WRAP_S</a>.
      */
@@ -53,7 +53,7 @@ public class Texture implements Closeable {
     }
 
     /**
-     * Describes the target this texture is bound to.
+     * 이 텍스처가 바인딩 된 대상을 설명합니다.
      *
      * @see <a href="https://www.khronos.org/registry/OpenGL-Refpages/es3.0/html/glBindTexture.xhtml">glBindTexture</a>.
      */

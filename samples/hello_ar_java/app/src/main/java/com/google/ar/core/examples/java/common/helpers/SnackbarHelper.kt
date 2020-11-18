@@ -15,7 +15,6 @@
  */
 package com.google.ar.core.examples.java.common.helpers
 
-import android.R
 import android.app.Activity
 import android.view.View
 import android.widget.TextView
@@ -23,8 +22,7 @@ import com.google.android.material.snackbar.BaseTransientBottomBar.BaseCallback
 import com.google.android.material.snackbar.Snackbar
 
 /**
- * Helper to manage the sample snackbar. Hides the Android boilerplate code, and exposes simpler
- * methods.
+ * 샘플 스낵바를 관리하는 도우미입니다. Android 상용구 코드를 숨기고 더 간단한 메서드를 노출합니다.
  */
 class SnackbarHelper {
     private var messageSnackbar: Snackbar? = null
@@ -95,7 +93,7 @@ class SnackbarHelper {
     private fun show(activity: Activity, message: String, dismissBehavior: DismissBehavior) {
         activity.runOnUiThread {
 
-            val view = if (snackbarView == null) activity.findViewById(R.id.content) else snackbarView
+            val view = if (snackbarView == null) activity.findViewById(android.R.id.content) else snackbarView
             messageSnackbar = Snackbar.make(view!!, message, Snackbar.LENGTH_INDEFINITE).apply {
                 view.setBackgroundColor(BACKGROUND_COLOR)
                 if (dismissBehavior != DismissBehavior.HIDE) {

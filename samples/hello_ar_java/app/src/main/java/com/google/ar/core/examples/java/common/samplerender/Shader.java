@@ -31,7 +31,7 @@ import java.util.regex.Matcher;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
- * Represents a GPU shader, the state of its associated uniforms, and some additional draw state.
+ * GPU 셰이더, 관련 유니폼의 상태 및 일부 추가 그리기 상태를 나타냅니다.
  */
 public class Shader implements Closeable {
     private static final String TAG = Shader.class.getSimpleName();
@@ -81,18 +81,14 @@ public class Shader implements Closeable {
 
     /**
      * Construct a {@link Shader} given the shader code.
-     *
+     * <p>
      * OpenGL ES 프로그램 생성 및 설정
      * 쉐이더 작성과 이를 사용할 프로그램에 대한 모든 준비가 끝나게 되는 것입니다.
      * 쉐이더를 담을 일종의 그릇인 프로그램 객체를 생성하고 이 객체에 쉐이더를 붙인 다음 링크를 하면 프로그램을 사용할 준비가 모두 끝나게 됩니다.
      *
      * @param defines 주어진 이름과 값으로 정의 할 셰이더 프리 컴파일러 심볼의 맵
      */
-    public Shader(
-        SampleRender render,
-        String vertexShaderCode,
-        String fragmentShaderCode,
-        Map<String, String> defines) {
+    public Shader(SampleRender render, String vertexShaderCode, String fragmentShaderCode, Map<String, String> defines) {
         int vertexShaderId = 0;
         int fragmentShaderId = 0;
         String definesCode = createShaderDefinesCode(defines);
@@ -136,8 +132,7 @@ public class Shader implements Closeable {
      * 주어진 자산 파일 이름으로 셰이더를 만듭니다.
      * 파일 내용은 UTF-8 텍스트로 해석됩니다.
      *
-     * @param defines A map of shader precompiler symbols to be defined with the given names and
-     *                values
+     * @param defines 주어진 이름과 값으로 정의 할 셰이더 프리 컴파일러 심볼의 맵
      */
     public static Shader createFromAssets(
         SampleRender render,
@@ -162,7 +157,7 @@ public class Shader implements Closeable {
     }
 
     /**
-     * Set depth test state.
+     * 깊이 테스트 상태를 설정합니다.
      *
      * @see <a href="https://www.khronos.org/registry/OpenGL-Refpages/es3.0/html/glEnable.xhtml">glEnable(GL_DEPTH_TEST)</a>.
      */
@@ -195,7 +190,7 @@ public class Shader implements Closeable {
     }
 
     /**
-     * Set blending functions separately for RGB and alpha channels.
+     * RGB 및 알파 채널에 대해 개별적으로 혼합 기능을 설정합니다.
      *
      * @see <a href="https://www.khronos.org/registry/OpenGL-Refpages/es3.0/html/glBlendFuncSeparate.xhtml">glBlendFunc</a>
      */
@@ -215,8 +210,7 @@ public class Shader implements Closeable {
      * Set a texture uniform.
      */
     public Shader setTexture(String name, Texture texture) {
-        // Special handling for Textures. If replacing an existing texture uniform, reuse the texture
-        // unit.
+        // 텍스처에 대한 특수 처리. 기존 텍스처 유니폼을 교체하는 경우 텍스처 단위를 재사용하십시오.
         int location = getUniformLocation(name);
         Uniform uniform = uniforms.get(location);
         int textureUnit;
@@ -230,21 +224,27 @@ public class Shader implements Closeable {
         return this;
     }
 
-    /** Set a {@code bool} uniform. */
+    /**
+     * Set a {@code bool} uniform.
+     */
     public Shader setBool(String name, boolean v0) {
         int[] values = {v0 ? 1 : 0};
         uniforms.put(getUniformLocation(name), new UniformInt(values));
         return this;
     }
 
-    /** Set a {@code float} uniform. */
+    /**
+     * Set a {@code float} uniform.
+     */
     public Shader set1(String name, float v0) {
         float[] values = {v0};
         uniforms.put(getUniformLocation(name), new Uniform1f(values));
         return this;
     }
 
-    /** Set a {@code vec2} uniform. */
+    /**
+     * Set a {@code vec2} uniform.
+     */
     public Shader set2(String name, float[] values) {
         if (values.length != 2) {
             throw new IllegalArgumentException("Value array length must be 2");
@@ -253,7 +253,9 @@ public class Shader implements Closeable {
         return this;
     }
 
-    /** Set a {@code vec3} uniform. */
+    /**
+     * Set a {@code vec3} uniform.
+     */
     public Shader set3(String name, float[] values) {
         if (values.length != 3) {
             throw new IllegalArgumentException("Value array length must be 3");
@@ -262,7 +264,9 @@ public class Shader implements Closeable {
         return this;
     }
 
-    /** Set a {@code vec4} uniform. */
+    /**
+     * Set a {@code vec4} uniform.
+     */
     public Shader set4(String name, float[] values) {
         if (values.length != 4) {
             throw new IllegalArgumentException("Value array length must be 4");
@@ -271,7 +275,9 @@ public class Shader implements Closeable {
         return this;
     }
 
-    /** Set an {@code mat2} uniform. */
+    /**
+     * Set an {@code mat2} uniform.
+     */
     public Shader setMatrix2(String name, float[] values) {
         if (values.length != 4) {
             throw new IllegalArgumentException("Value array must be 4 (2x2)");
@@ -280,7 +286,9 @@ public class Shader implements Closeable {
         return this;
     }
 
-    /** Set an {@code mat3} uniform. */
+    /**
+     * Set an {@code mat3} uniform.
+     */
     public Shader setMatrix3(String name, float[] values) {
         if (values.length != 9) {
             throw new IllegalArgumentException("Value array must be 9 (3x3)");
@@ -289,7 +297,9 @@ public class Shader implements Closeable {
         return this;
     }
 
-    /** Set an {@code mat4} uniform. */
+    /**
+     * Set an {@code mat4} uniform.
+     */
     public Shader setMatrix4(String name, float[] values) {
         if (values.length != 16) {
             throw new IllegalArgumentException("Value array must be 16 (4x4)");

@@ -58,12 +58,13 @@ open class HelloArActivity : BActivity(), SampleRender.Renderer {
     private val instantPlacementSettings = InstantPlacementSettings()
     private val instantPlacementSettingsMenuDialogCheckboxes = BooleanArray(1)
     private var pointCloudVertexBuffer: VertexBuffer? = null
-    private var pointCloudMesh: Mesh? = null
-    private var pointCloudShader: Shader? = null
+
+    private lateinit var pointCloudMesh: Mesh
+    private lateinit var pointCloudShader: Shader
 
     // 포인트 클라우드가 변경되지 않은 경우 VBO가 업데이트되지 않도록 렌더링 된 마지막 포인트 클라우드를 추적합니다. PointCloud 개체를 비교할 수 없으므로 타임 스탬프를 사용하여이 작업을 수행합니다.
     private var lastPointCloudTimestamp: Long = 0
-    private var virtualObjectMesh: Mesh? = null
+    private lateinit var virtualObjectMesh: Mesh
     private var virtualObjectShader: Shader? = null
     private var virtualObjectDepthShader: Shader? = null
 

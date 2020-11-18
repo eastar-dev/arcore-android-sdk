@@ -40,7 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Renders the detected AR planes. */
+/** 감지 된 AR 평면을 렌더링합니다. */
 public class PlaneRenderer {
   private static final String TAG = PlaneRenderer.class.getSimpleName();
 
