@@ -37,11 +37,7 @@ import smart.base.BActivity
 import java.io.IOException
 import java.util.*
 
-/**
- * This is a simple example that shows how to create an augmented reality (AR) application using the
- * ARCore API. The application will display any detected planes and will allow the user to tap on a
- * plane to place a 3d model of the Android robot.
- */
+/** 이것은 ARCore API를 사용하여 증강 현실 (AR) 애플리케이션을 만드는 방법을 보여주는 간단한 예입니다. 애플리케이션은 감지 된 모든 평면을 표시하고 사용자가 평면을 탭하여 Android 로봇의 3D 모델을 배치 할 수 있도록합니다. */
 open class HelloArActivity : BActivity(), SampleRender.Renderer {
     private lateinit var bb: ActivityMainBinding
 
@@ -65,19 +61,18 @@ open class HelloArActivity : BActivity(), SampleRender.Renderer {
     private var pointCloudMesh: Mesh? = null
     private var pointCloudShader: Shader? = null
 
-    // Keep track of the last point cloud rendered to avoid updating the VBO if point cloud
-    // was not changed.  Do this using the timestamp since we can't compare PointCloud objects.
+    // 포인트 클라우드가 변경되지 않은 경우 VBO가 업데이트되지 않도록 렌더링 된 마지막 포인트 클라우드를 추적합니다. PointCloud 개체를 비교할 수 없으므로 타임 스탬프를 사용하여이 작업을 수행합니다.
     private var lastPointCloudTimestamp: Long = 0
     private var virtualObjectMesh: Mesh? = null
     private var virtualObjectShader: Shader? = null
     private var virtualObjectDepthShader: Shader? = null
 
-    // Anchors created from taps used for object placing with a given color.
+    // 주어진 색상으로 개체를 배치하는 데 사용되는 탭으로 만든 앵커입니다.
     private class ColoredAnchor(val anchor: Anchor, var color: FloatArray, val trackable: Trackable)
 
     private val anchors = ArrayList<ColoredAnchor>()
 
-    // Temporary matrix allocated here to reduce number of allocations for each frame.
+    // 각 프레임에 대한 할당 수를 줄이기 위해 여기에 할당 된 임시 행렬입니다.
     private val modelMatrix = FloatArray(16)
     private val viewMatrix = FloatArray(16)
     private val projectionMatrix = FloatArray(16)
@@ -112,9 +107,9 @@ open class HelloArActivity : BActivity(), SampleRender.Renderer {
 
     override fun onDestroy() {
         if (session != null) {
-            // Explicitly close ARCore Session to release native resources.
-            // Review the API reference for important considerations before calling close() in apps with
-            // more complicated lifecycle requirements:
+            // ARCore 세션을 명시 적으로 닫아 네이티브 리소스를 해제합니다.
+            // 앱에서 close ()를 호출하기 전에 API 참조에서 중요한 고려 사항을 검토하십시오.
+            // 더 복잡한 수명주기 요구 사항 :
             // https://developers.google.com/ar/reference/java/arcore/reference/com/google/ar/core/Session#close()
             session!!.close()
             session = null
