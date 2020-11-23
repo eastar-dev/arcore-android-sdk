@@ -91,32 +91,32 @@ class SnackbarHelper {
     }
 
     private fun show(activity: Activity, message: String, dismissBehavior: DismissBehavior) {
-        activity.runOnUiThread {
-
-            val view = if (snackbarView == null) activity.findViewById(android.R.id.content) else snackbarView
-            messageSnackbar = Snackbar.make(view!!, message, Snackbar.LENGTH_INDEFINITE).apply {
-                view.setBackgroundColor(BACKGROUND_COLOR)
-                if (dismissBehavior != DismissBehavior.HIDE) {
-                    setAction("Dismiss") {
-                        dismiss()
-                    }
-
-                    if (dismissBehavior == DismissBehavior.FINISH) {
-                        addCallback(object : BaseCallback<Snackbar?>() {
-                            override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
-                                super.onDismissed(transientBottomBar, event)
-                                activity.finish()
-                            }
-
-                        })
-                    }
-                }
-                (view.findViewById<View>(com.google.android.material.R.id.snackbar_text) as TextView).apply {
-                    maxLines = maxLines
-                }
-                show()
-            }
-        }
+        //activity.runOnUiThread {
+        //
+        //    val view = if (snackbarView == null) activity.findViewById(android.R.id.content) else snackbarView
+        //    messageSnackbar = Snackbar.make(view!!, message, Snackbar.LENGTH_INDEFINITE).apply {
+        //        view.setBackgroundColor(BACKGROUND_COLOR)
+        //        if (dismissBehavior != DismissBehavior.HIDE) {
+        //            setAction("Dismiss") {
+        //                dismiss()
+        //            }
+        //
+        //            if (dismissBehavior == DismissBehavior.FINISH) {
+        //                addCallback(object : BaseCallback<Snackbar?>() {
+        //                    override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+        //                        super.onDismissed(transientBottomBar, event)
+        //                        activity.finish()
+        //                    }
+        //
+        //                })
+        //            }
+        //        }
+        //        (view.findViewById<View>(com.google.android.material.R.id.snackbar_text) as TextView).apply {
+        //            maxLines = maxLines
+        //        }
+        //        show()
+        //    }
+        //}
     }
 
     companion object {

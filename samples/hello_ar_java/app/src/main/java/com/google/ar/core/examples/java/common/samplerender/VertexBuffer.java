@@ -77,7 +77,7 @@ public class VertexBuffer implements Closeable {
      * Otherwise, the size of {@code entries} must be divisible by the number of entries per vertex
      * specified during construction.
      *
-     * 새 데이터로 채 웁니다.
+     * 새 데이터로 채웁니다.
      *
      * 전체 버퍼는 현재 커서 위치가 아니라 버퍼의 시작 부분에서 시작하는 직접 버퍼 항목의 내용으로 대체됩니다.
      * 이 함수가 반환 된 후 커서는 정의되지 않은 위치에 남아 있습니다.

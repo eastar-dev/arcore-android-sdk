@@ -282,8 +282,7 @@ open class HelloArActivity : BActivity(), SampleRender.Renderer {
                             GLES30.GL_UNSIGNED_BYTE,
                             depthImage.planes[0].buffer
                         )
-                        val aspectRatio = depthImage.width.toFloat() / depthImage.height
-                            .toFloat()
+                        val aspectRatio = depthImage.width.toFloat() / depthImage.height.toFloat()
                         virtualObjectDepthShader!!.set1("u_DepthAspectRatio", aspectRatio)
                     }
                 } catch (e: NotYetAvailableException) {
@@ -339,11 +338,11 @@ open class HelloArActivity : BActivity(), SampleRender.Renderer {
             }
 
             // Visualize planes.
-//      planeRenderer.drawPlanes(
-//          render,
-//          session.getAllTrackables(Plane.class),
-//          camera.getDisplayOrientedPose(),
-//          projectionMatrix);
+      //planeRenderer.drawPlanes(
+      //    render,
+      //    session.getAllTrackables(Plane.class),
+      //    camera.getDisplayOrientedPose(),
+      //    projectionMatrix);
 
             // Visualize anchors created by touch.
             for (coloredAnchor in anchors) {
