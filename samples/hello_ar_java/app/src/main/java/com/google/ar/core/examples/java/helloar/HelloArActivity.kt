@@ -18,8 +18,10 @@ package com.google.ar.core.examples.java.helloar
 import android.content.DialogInterface
 import android.log.Log
 import android.opengl.GLES30
+import android.opengl.GLU
 import android.opengl.Matrix
 import android.os.Bundle
+import android.os.SystemClock
 import android.view.MenuItem
 import android.view.View
 import android.widget.PopupMenu
@@ -36,9 +38,11 @@ import com.google.ar.core.exceptions.*
 import smart.base.BActivity
 import java.io.IOException
 import java.util.*
+import javax.microedition.khronos.opengles.GL10
 
 /** 이것은 ARCore API를 사용하여 증강 현실 (AR) 애플리케이션을 만드는 방법을 보여주는 간단한 예입니다. 애플리케이션은 감지 된 모든 평면을 표시하고 사용자가 평면을 탭하여 Android 로봇의 3D 모델을 배치 할 수 있도록합니다. */
 open class HelloArActivity : BActivity(), SampleRender.Renderer {
+    private var mTextureID: Int=0
     private lateinit var bb: ActivityMainBinding
 
     private var installRequested = false
@@ -203,7 +207,9 @@ open class HelloArActivity : BActivity(), SampleRender.Renderer {
 
     override fun onSurfaceCreated(render: SampleRender) {
         // 렌더링 개체를 준비합니다. 여기에는 셰이더 및 3D 모델 파일 읽기가 포함되므로 IOException이 발생할 수 있습니다.
+        // 텍스처를 만듭니다. 이 작업은 표면이 생성 될 때마다 수행되어야합니다.
         try {
+
             depthTexture = Texture(render, Texture.Target.TEXTURE_2D, Texture.WrapMode.CLAMP_TO_EDGE)
             planeRenderer = PlaneRenderer(render)
             backgroundRenderer = BackgroundRenderer(render, depthTexture)
@@ -218,9 +224,7 @@ open class HelloArActivity : BActivity(), SampleRender.Renderer {
                 .set1("u_PointSize", 5.0f)
             // four entries per vertex: X, Y, Z, confidence
             pointCloudVertexBuffer = VertexBuffer(render,  /*numberOfEntriesPerVertex=*/4,  /*entries=*/null)
-            val pointCloudVertexBuffers = arrayOf(
-                pointCloudVertexBuffer!!
-            )
+            val pointCloudVertexBuffers = arrayOf(pointCloudVertexBuffer!!)
             pointCloudMesh = Mesh(render, Mesh.PrimitiveMode.POINTS,  /*indexBuffer=*/null, pointCloudVertexBuffers)
 
             // Virtual object to render (Andy the android)
@@ -233,9 +237,12 @@ open class HelloArActivity : BActivity(), SampleRender.Renderer {
         }
     }
 
+
+
     override fun onSurfaceChanged(render: SampleRender, width: Int, height: Int) {
         displayRotationHelper.onSurfaceChanged(width, height)
     }
+
 
     override fun onDrawFrame(render: SampleRender) {
         if (session == null) {
@@ -245,6 +252,7 @@ open class HelloArActivity : BActivity(), SampleRender.Renderer {
             session!!.setCameraTextureNames(intArrayOf(backgroundRenderer!!.textureId))
             hasSetTextureNames = true
         }
+
 
         // Notify ARCore session that the view size changed so that the perspective matrix and
         // the video background can be properly adjusted.
@@ -338,11 +346,11 @@ open class HelloArActivity : BActivity(), SampleRender.Renderer {
             }
 
             // Visualize planes.
-      //planeRenderer.drawPlanes(
-      //    render,
-      //    session.getAllTrackables(Plane.class),
-      //    camera.getDisplayOrientedPose(),
-      //    projectionMatrix);
+            //planeRenderer.drawPlanes(
+            //    render,
+            //    session.getAllTrackables(Plane.class),
+            //    camera.getDisplayOrientedPose(),
+            //    projectionMatrix);
 
             // Visualize anchors created by touch.
             for (coloredAnchor in anchors) {
@@ -365,12 +373,9 @@ open class HelloArActivity : BActivity(), SampleRender.Renderer {
                 // Calculate model/view/projection matrices and view-space light direction
                 Matrix.multiplyMM(modelViewMatrix, 0, viewMatrix, 0, modelMatrix, 0)
                 Matrix.multiplyMM(
-                    modelViewProjectionMatrix,
-                    0,
-                    projectionMatrix,
-                    0,
-                    modelViewMatrix,
-                    0
+                    modelViewProjectionMatrix, 0,
+                    projectionMatrix, 0,
+                    modelViewMatrix, 0
                 )
                 Matrix.multiplyMV(viewLightDirection, 0, viewMatrix, 0, LIGHT_DIRECTION, 0)
 
@@ -387,6 +392,72 @@ open class HelloArActivity : BActivity(), SampleRender.Renderer {
             // Avoid crashing the application due to unhandled exceptions.
             Log.e(TAG, "Exception on the OpenGL thread", t)
         }
+    }
+    override fun onSurfaceCreated(gl: GL10) {
+        val textures = IntArray(1)
+        gl.glGenTextures(1, textures, 0)
+        mTextureID = textures[0]
+    }
+    private val cube = Triangle()
+    override fun onDrawFrame(gl: GL10) {
+        Log.e()
+
+        /*
+         * By default, OpenGL enables features that improve quality
+         * but reduce performance. One might want to tweak that
+         * especially on software renderer.
+         */
+
+        /*
+         * By default, OpenGL enables features that improve quality
+         * but reduce performance. One might want to tweak that
+         * especially on software renderer.
+         */
+
+        gl.glDisable(GL10.GL_DITHER)
+
+        gl.glTexEnvx(GL10.GL_TEXTURE_ENV, GL10.GL_TEXTURE_ENV_MODE, GL10.GL_MODULATE)
+
+        /*
+         * Usually, the first thing one might want to do is to clear
+         * the screen. The most efficient way of doing this is to use
+         * glClear().
+         */
+
+
+        /*
+         * Usually, the first thing one might want to do is to clear
+         * the screen. The most efficient way of doing this is to use
+         * glClear().
+         */gl.glClear(GL10.GL_COLOR_BUFFER_BIT or GL10.GL_DEPTH_BUFFER_BIT)
+
+        /*
+         * Now we're ready to draw some 3D objects
+         */
+
+
+        /*
+         * Now we're ready to draw some 3D objects
+         */
+
+        gl.glMatrixMode(GL10.GL_MODELVIEW)
+        gl.glLoadIdentity()
+
+        GLU.gluLookAt(gl, 0f, 0f, -5f, 0f, 0f, 0f, 0f, 1.0f, 0.0f)
+
+        gl.glEnableClientState(GL10.GL_VERTEX_ARRAY)
+        gl.glEnableClientState(GL10.GL_TEXTURE_COORD_ARRAY)
+
+        gl.glActiveTexture(GL10.GL_TEXTURE0)
+        gl.glBindTexture(GL10.GL_TEXTURE_2D, mTextureID)
+        gl.glTexParameterx(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_S, GL10.GL_REPEAT)
+        gl.glTexParameterx(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_T, GL10.GL_REPEAT)
+
+        val time = SystemClock.uptimeMillis() % 4000L
+        val angle = 0.090f * time.toInt()
+
+        gl.glRotatef(angle, 0f, 0f, 1.0f)
+        cube.draw(gl)
     }
 
     // Handle only one tap per frame, as taps are usually low frequency compared to frame rate.

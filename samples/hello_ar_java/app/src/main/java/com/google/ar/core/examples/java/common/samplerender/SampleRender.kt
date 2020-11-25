@@ -27,8 +27,10 @@ class SampleRender(glSurfaceView: GLSurfaceView, renderer: Renderer, val assets:
     /** 콜백 렌더링을 위해 구현할 인터페이스입니다. */
     interface Renderer {
         fun onSurfaceCreated(render: SampleRender)
+        fun onSurfaceCreated(gl: GL10)
         fun onSurfaceChanged(render: SampleRender, width: Int, height: Int)
         fun onDrawFrame(render: SampleRender)
+        fun onDrawFrame(gl: GL10)
     }
 
     init {
@@ -39,6 +41,8 @@ class SampleRender(glSurfaceView: GLSurfaceView, renderer: Renderer, val assets:
             override fun onSurfaceCreated(gl: GL10, config: EGLConfig) {
                 GLES30.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
                 GLES30.glEnable(GLES30.GL_BLEND)
+
+                //renderer.onSurfaceCreated(gl)
                 renderer.onSurfaceCreated(this@SampleRender)
             }
 
@@ -48,8 +52,9 @@ class SampleRender(glSurfaceView: GLSurfaceView, renderer: Renderer, val assets:
             }
 
             override fun onDrawFrame(gl: GL10) {
+                //renderer.onDrawFrame(gl)
                 GLES30.glClear(GL10.GL_COLOR_BUFFER_BIT or GL10.GL_DEPTH_BUFFER_BIT)
-                renderer.onDrawFrame(this@SampleRender)
+                renderer.onDrawFrame( this@SampleRender)
             }
         })
         glSurfaceView.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
